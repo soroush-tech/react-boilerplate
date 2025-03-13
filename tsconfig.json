@@ -23,7 +23,13 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": true,
+
+    /* Type Safety */
+    "exactOptionalPropertyTypes": true,
+    "noImplicitOverride": true,
+    "noUncheckedIndexedAccess": true,
+    "strictBindCallApply": true
   },
   "include": ["src"],
   "references": [{ "path": "./tsconfig.node.json" }]
