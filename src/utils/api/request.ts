@@ -26,9 +26,7 @@ const errorHandler = (error: Error) => {
   return Promise.reject(error)
 }
 
-export const createRequest = (
-  defaultOptions: AxiosRequestConfig = {},
-): AxiosInstance => {
+export const createRequest = (defaultOptions: AxiosRequestConfig = {}): AxiosInstance => {
   const headers: RawAxiosRequestHeaders = {
     Accept: 'application/json',
     'Content-Type': 'application/json',
@@ -44,8 +42,7 @@ export const createRequest = (
     data: {},
     headers,
     ...defaultOptions,
-    paramsSerializer: (params: object) =>
-      qs.stringify(removeEmptyValues(params)),
+    paramsSerializer: (params: object) => qs.stringify(removeEmptyValues(params)),
     maxContentLength: 20000,
   }
 
@@ -53,14 +50,14 @@ export const createRequest = (
 
   //axios interceptors for custom logic
   request.interceptors.request.use((req) => {
-    if (process.env.NODE_ENV !== 'production') {
+    if (import.meta.env.DEV) {
       console.log('API request', req)
     }
     return req
   })
 
   request.interceptors.response.use((res) => {
-    if (process.env.NODE_ENV !== 'production') {
+    if (import.meta.env.DEV) {
       console.log('API response', res)
     }
     return res

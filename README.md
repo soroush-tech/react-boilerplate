@@ -1,86 +1,94 @@
-# React + TypeScript + Vite
+# React Boilerplate
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+[![CI](https://github.com/soroush-tech/react-boilerplate/actions/workflows/ci.yml/badge.svg)](https://github.com/soroush-tech/react-boilerplate/actions/workflows/ci.yml)
 
-Currently, two official plugins are available:
+A minimal, modern React starter built on Vite — with data fetching, API mocking, and testing already wired up.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Stack
 
-## Expanding the ESLint configuration
+- ⚛️ [React 19](https://react.dev/) + TypeScript
+- ⚡ [Vite 8](https://vitejs.dev/) with [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react)
+- 🔄 [TanStack Query 5](https://tanstack.com/query) with a `useCustomQuery` wrapper hook
+- 🌐 [Axios](https://axios-http.com/) API client with interceptors and error mapping
+- 🎭 [MSW 2](https://mswjs.io/) API mocking — browser worker in dev, Node server in tests
+- 🧪 [Vitest 4](https://vitest.dev/) + [Testing Library](https://testing-library.com/) (jsdom, coverage via v8)
+- 🧹 [ESLint 10](https://eslint.org/) flat config + [Prettier](https://prettier.io/)
+- 🪝 [Husky](https://typicode.github.io/husky/) + [lint-staged](https://github.com/lint-staged/lint-staged) pre-commit hook
+- 🤖 GitHub Actions CI (lint, typecheck, test, build)
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+## Requirements
 
-- Configure the top-level `parserOptions` property like this:
-
-```js
-export default {
-  // other rules...
-  parserOptions: {
-    ecmaVersion: 'latest',
-    sourceType: 'module',
-    project: ['./tsconfig.json', './tsconfig.node.json'],
-    tsconfigRootDir: __dirname,
-  },
-}
-```
-
-- Replace `plugin:@typescript-eslint/recommended` to `plugin:@typescript-eslint/recommended-type-checked` or `plugin:@typescript-eslint/strict-type-checked`
-- Optionally add `plugin:@typescript-eslint/stylistic-type-checked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and add `plugin:react/recommended` & `plugin:react/jsx-runtime` to the `extends` list
+- Node.js ≥ 22.12 (see `.nvmrc`)
+- npm
 
 ## Getting Started
 
-To get started with this project, simply run:
-
 ```bash
-yarn install
-yarn prepare
-yarn dev
+npm install
+npm run dev
 ```
+
+`npm install` also sets up the Husky git hooks via the `prepare` script.
 
 ## Available Scripts
 
-In the project directory, you can run:
+| Script                  | Description                                       |
+| ----------------------- | ------------------------------------------------- |
+| `npm run dev`           | Start the dev server with HMR (MSW mocks enabled) |
+| `npm run build`         | Typecheck and build for production into `build/`  |
+| `npm run preview`       | Preview the production build locally              |
+| `npm test`              | Run tests in watch mode                           |
+| `npm run test:ui`       | Run tests with the Vitest UI                      |
+| `npm run test:coverage` | Run tests once with a coverage report             |
+| `npm run lint`          | Lint with ESLint (zero warnings allowed)          |
+| `npm run tsc`           | Typecheck without emitting                        |
+| `npm run prettier`      | Format the whole project with Prettier            |
 
-### `yarn start`yarn start`
+## Project Structure
 
-Runs the app in the development mode.\
+```
+src/
+├── main.tsx                 # Entry point — mounts App, starts the MSW worker in dev
+├── App.tsx                  # Demo component fetching a user via useCustomQuery
+├── renderWithProvider.tsx   # StrictMode + QueryClientProvider wrapper
+├── config.ts                # BASE_URL, REQUEST_TIMEOUT
+├── common/hooks/            # useCustomQuery — TanStack Query wrapper around the API client
+├── service/mocks/           # MSW handlers, browser worker (dev), Node server (tests)
+└── utils/api/               # Axios client: instance factory, interceptors, error mapping
+setup/tests/                 # vitest-setup.ts — jest-dom matchers + MSW server lifecycle
+.github/workflows/           # CI pipeline
+```
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+## Data Fetching
 
-### `yarn test`
+Requests go through the axios client singleton (`src/utils/api/client.ts`) via the `useCustomQuery` hook:
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+```tsx
+const query = useCustomQuery<User>({
+  queryKey: ['user'],
+  config: { url: '/user', method: 'get' },
+})
+```
 
-### `yarn build`
+Set `BASE_URL` and `REQUEST_TIMEOUT` in `src/config.ts`.
 
-Builds the app for production to the `dist` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## API Mocking (MSW)
 
-### `yarn preview`
+Handlers live in `src/service/mocks/handlers.ts`.
 
-Your app is ready to be deployed! just previewing our app without publishing it, yet. We can use this command at anytime to preview our app.
+- **Dev**: the browser worker starts automatically in `npm run dev` (see `src/main.tsx`). Set `VITE_MSW=1` to enable it in other modes.
+- **Tests**: the Node server is wired up globally in `setup/tests/vitest-setup.ts`.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+After upgrading the `msw` package, regenerate the worker script with `npx msw init public/`.
 
-### Learn More
+## Pre-commit Hook
 
-To learn more about Vite, check out the [official documentation](https://vitejs.dev/guide/).
+On every commit, `lint-staged` runs ESLint (`--fix`) and Prettier on staged files (`.husky/pre-commit`).
 
-To learn more about React, check out the [official documentation](https://reactjs.org/docs/getting-started.html).
+## CI
 
-In this example, we've added an introduction to Vite, a brief overview of the app, and instructions for getting started, building for production, and running tests. We've also provided links to the official documentation for both Vite and React.
+`.github/workflows/ci.yml` runs lint, typecheck, tests with coverage, and the production build on every push and pull request to `master`.
 
-# Vite ⚡
+## License
 
-> Next Generation Frontend Tooling
-
-- 💡 Instant Server Start
-- ⚡️ Lightning Fast HMR
-- 🛠️ Rich Features
-- 📦 Optimized Build
-- 🔩 Universal Plugin Interface
-- 🔑 Fully Typed APIs
+[CC0 1.0](LICENSE) — public domain, use it however you like.

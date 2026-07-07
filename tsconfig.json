@@ -5,8 +5,7 @@
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "allowJs": true,
     "module": "ESNext",
-    "esModuleInterop": false,
-    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
     "skipLibCheck": true,
 
     /* Bundler mode */
@@ -14,6 +13,7 @@
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
     "resolveJsonModule": true,
+    "types": ["vite/client", "vitest/globals"],
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx",
@@ -31,6 +31,6 @@
     "noUncheckedIndexedAccess": true,
     "strictBindCallApply": true
   },
-  "include": ["src"],
+  "include": ["src", "setup"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }
