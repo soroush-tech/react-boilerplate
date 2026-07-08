@@ -8,6 +8,11 @@
       "description": "Automerge minor and patch updates once CI is green",
       "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
       "automerge": true
+    },
+    {
+      "description": "Automerge GitHub Actions updates including majors",
+      "matchManagers": ["github-actions"],
+      "automerge": true
     }
   ],
   "lockFileMaintenance": {
